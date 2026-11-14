@@ -1,0 +1,71 @@
+BEDLEY — HOW TO START
+=======================
+
+1. Open this folder in File Explorer (you should see package.json).
+2. Click the address bar at the top, type  powershell  and press Enter.
+3. In the blue window, type these one at a time (press Enter, wait for each):
+
+     npm install
+     npm run seed -- --reset
+     npm run demo
+
+4. When it says "Ready", open Chrome and go to:  localhost:3000
+
+   Tenant login:    tenant@bedley.demo     password: demo1234
+   Landlord login:  landlord@bedley.demo   password: demo1234
+
+Keep the blue window open. Closing it turns the app off.
+Next time you only need:  npm run demo
+
+All your keys are already in the .env file.
+
+PHONE CALLS
+-----------
+Works right away: the AI phones the contractor, the tenant and you (the landlord)
+using the numbers on the "Settings & my details" (landlord) and "My details" (tenant) pages.
+Twilio trial: every number must be verified in the Twilio console first,
+and each call starts with a Twilio message - press any key to hear the AI.
+
+Optional (lets the AI LISTEN: hear the contractor's price, let you press 1 to approve):
+  open a second PowerShell window in this folder and run
+     npx cloudflared tunnel --url http://localhost:3000
+  copy the https://....trycloudflare.com link into APP_BASE_URL in .env,
+  then restart with  npm run demo
+
+TEST A PHONE CALL (30 seconds)
+------------------------------
+In the blue window (app can be stopped or running in another window):
+   npm run test-call -- +14166174686 inline
+Answer the phone. If you hear "custom calls work on your Twilio account", you're set.
+If Twilio rejects it, try:
+   npm run test-call -- +14166174686 template
+and set TWILIO_TRIAL_TEMPLATES_ONLY=1 in .env (calls will still ring, using Twilio's sample message).
+
+LET THE AI HEAR ANSWERS ON CALLS (landlord conversation)
+--------------------------------------------------------
+While the app is running, open a SECOND blue window in this folder and run:
+   npm run tunnel
+Wait for "Public link: https://....trycloudflare.com". Keep that window open.
+The app picks it up by itself within a few seconds. Now when a big repair comes in
+(e.g. "No heat in the apartment"), Bedley phones the landlord, explains, and you can
+say "yes, book them", "no", or ask "how much?" / "when can they come?".
+Set your landlord phone in Settings first.
+
+BEDLEY CALLS YOU IN THE APP (free — no Twilio upgrade needed)
+--------------------------------------------------------------
+Stay logged in as the landlord in Chrome. When a tenant reports something big
+(e.g. "No heat in the apartment"), a "Bedley is calling" screen rings within seconds.
+Click Answer: Bedley speaks (ElevenLabs voice) and listens through your microphone.
+Chrome will ask to use the microphone the first time - click Allow.
+You can talk ("How much is it?", "Yes, book them") or tap the quick buttons.
+
+PUT THE SITE ON VERCEL (AI stays on your laptop for the day)
+------------------------------------------------------------
+1. Put this folder on GitHub (GitHub Desktop: Add local repository -> Publish, untick "private").
+2. vercel.com -> Add New -> Project -> import the repo.
+   Open "Environment Variables", paste EVERYTHING from your .env file, click Deploy.
+3. Copy your Vercel link. In Vercel -> Settings -> Environment Variables set
+   APP_BASE_URL to that link and redeploy. Also change APP_BASE_URL in your .env (notepad .env).
+4. Atlas -> Network Access -> Add IP Address -> Allow access from anywhere.
+5. On your laptop, in this folder:   npm run agent
+   Leave that window open. That is Bedley's brain; the Vercel site is its face.
